@@ -3,7 +3,15 @@ import { View, Text } from 'react-native';
 import Chart from './Chart';
 import DateSwitch from './DateSwitch';
 import { postDeviceDayShow, postDeviceMonthShow } from './API';
-import RangeSlider from 'rn-range-slider';
+
+/*
+PROPS: device : Appareil choisi qui doit etre affiché
+       token : token d'authentification pour les call api
+
+       
+RETURN: un graphique contenant toutes les infos
+*/
+
 
 class Display extends Component {
     constructor(props) {
@@ -13,18 +21,24 @@ class Display extends Component {
             statDay: [],
             date: new Date().toISOString().split('T')[0],
             whichType: "date",
+            types:["date","month"],
             rangeLow: 0,
             rangeHigh:24,
+            index:0,
         };
         this.handleDate = this.handleDate.bind(this);
         this.handleWhichType = this.handleWhichType.bind(this);
         this.handleDateAction = this.handleDateAction.bind(this);
+        this.handleIndex = this.handleIndex.bind(this);
     }
+
+    //cycle de vie
     componentDidUpdate(prevprops, prevstate) {
         if (this.state.whichType === "month" && this.state.whichType !== prevstate.whichType) {
             let date = new Date()
-            let month = date.getUTCFullYear() + (date.getMonth() < 10 ? "-0" : "-") + (date.getMonth() + 1);
+            let month = date.getUTCFullYear() + (date.getMonth() < 9 ? "-0" : "-") + (date.getMonth() + 1);
             this.setState({ date: month });
+            
         }
 
         if (this.state.whichType === "date" && this.state.whichType !== prevstate.whichType) {
@@ -34,6 +48,7 @@ class Display extends Component {
 
         if (prevprops.device !== this.props.device || prevstate.date !== this.state.date) {
             this.dateTypecCondition()
+            console.log()
         }
 
     }
@@ -46,7 +61,7 @@ class Display extends Component {
     //others
     updateDay() {
         postDeviceDayShow(this.props.device, this.state.date, this.props.token)
-            .then(result => this.handleStat(result))
+            .then(result => {this.handleStat(result);})
             .then(this.setState({ isLoading: false }));
     }
 
@@ -62,6 +77,7 @@ class Display extends Component {
         }
         else if (this.state.whichType === "month") {
             this.updateMonth();
+            
         }
     }
     handleDate(newDate) {
@@ -74,6 +90,11 @@ class Display extends Component {
 
     handleStat(result) {
         this.setState({ statDay: result });
+    }
+    handleIndex(id){
+        this.setState({index : id})
+        this.handleWhichType(this.state.types[id])
+        
     }
 
     handleDateAction(operation) {
@@ -92,32 +113,29 @@ class Display extends Component {
     }
 
     render() {
+        if(this.state.whichType == "date"){
+            this.formats = [{"format": "%Y-%-m-%-d/%-Ih%-M", "name": "Time", "type": "date"}, {"name": "Electricity", "type": "number"}]
+        }else{
+            this.formats = [{"format": "%Y-%-m-%-d", "name": "Time", "type": "date"}, {"name": "Electricity", "type": "number"}]
+        }
         
         return (
-            <View>
+            <View style={{flex: 2, flexDirection: 'column',justifyContent:'space-between'}}>
+                <View style={{ height: 50}}>
                 <DateSwitch date={this.state.date}
                     onChangeDate={this.handleDate}
                     type={this.state.whichType}
                     onChangeType={this.handleWhichType}
-                    action={this.handleDateAction} />
-                    
-                <Chart data={this.state.statDay} yTitle={"Consumption"} xTitle={this.state.whichType} domainMin={this.state.rangeLow} domainMax={this.state.rangeHigh}></Chart>
-                
+                    action={this.handleDateAction}
+                    index={this.state.index}
+                    changeIndex={this.handleIndex} />
+                </View>
+                <View style={{ height:800, }} >
+                {!this.state.isLoading && <Chart yValue={this.formats[1].name} subcaption={this.formats[1].name} unit={"Kwh"} data={this.state.statDay} yTitle={"Consumption"} xTitle={this.state.whichType} format={this.formats} ></Chart>}
+                </View>
             </View>
         );
     }
 }
 
 export default Display;
-/*
-<RangeSlider
-                    style={{ width: 160, height: 80,}}
-                    gravity={'center'}
-                    min={0}
-                    max={24}
-                    step={1}
-                    selectionColor="#3df"
-                    blankColor="#f618"
-                    onValueChanged={(low, high, fromUser) => {
-                        this.setState({ rangeLow: low, rangeHigh: high })
-                    }} /> */

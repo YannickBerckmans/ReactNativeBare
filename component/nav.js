@@ -13,8 +13,8 @@ import {
 
 
 /*
-PROPS: onRedirection : fonction de redirection pour un button
-       toDisconnect : fonction de deconnexion
+PROPS: setSignIn : methode pour indiquer si login ou pas
+       setToken : methode pour mettre à jour le token
        
 RETURN: Navigation via le drawer
 */

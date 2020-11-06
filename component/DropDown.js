@@ -1,9 +1,16 @@
 import React, { Component } from 'react';
 import { View, Text } from 'react-native';
 import { Picker } from '@react-native-community/picker';
+
 /*
-*
+PROPS: onSelect : méthode a la quelle on donne la valeur selectionné
+       select : valeur actuellemnt selectionné
+       optionDic :  Liste contenant les option du dropdown
+
+       
+RETURN: un graphique contenant toutes les infos
 */
+
 export default class DropDown extends Component {
   constructor(props) {
     super(props);
@@ -27,10 +34,7 @@ export default class DropDown extends Component {
 
     return (
       <View>
-        
-
         <Picker
-        
         selectedValue={this.props.select}
         style={{ height: 50, width: 200 }}
         

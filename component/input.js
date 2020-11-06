@@ -2,6 +2,7 @@ import React, { Component, Fragment, } from 'react';
 import { TextInput } from 'react-native-paper';
 
 
+
 /*
 PROPS: onChange : function qui change le state correspondant a l'input
        type : type d'input (text,...)
@@ -21,7 +22,7 @@ class Input extends Component {
     }
 
     handleChange(event) {
-        this.props.onChange(event.target.value)
+        this.props.onChange(event)
     }
 
     
@@ -30,13 +31,14 @@ class Input extends Component {
         
         return (
             
-            <TextInput type={this.props.type}
+            <TextInput
                 readOnly={this.props.readonly}
                 value={this.props.value}
-                onChange={this.handleChange}
+                onChangeText={text => this.handleChange(text)}
                 required={this.props.required}
                 placeholder={this.props.placeHolder}
                 size={this.props.size}
+                secureTextEntry={this.props.type === 'password'}
                  />
                 
             

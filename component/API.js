@@ -63,10 +63,22 @@ export async function postDeviceDayShow(deviceId, date, token) {
         body: formdata,
         redirect: 'follow'
     };
-    //console.log(url + "devices/"+ deviceId +"/day/show")
+    
     await fetch(url + "devices/" + deviceId + "/day/show", requestOptions)
         .then(response => response.text())
-        .then(result => { statDay = JSON.parse(result); })
+        .then(result => JSON.parse(result))
+        .then(json => {
+            let datas = []
+            for (let key in json) {
+                let data = [];
+                data.push(json[key]["date"]+"/"+json[key]["x"])
+                data.push(json[key]["y"]) 
+                
+                datas.push(data)
+            }
+            statDay = datas;
+            
+        })
         .catch(error => console.log('error', error));
 
     return statDay;
@@ -86,10 +98,21 @@ export async function postDeviceMonthShow(deviceId, date,token) {
     };
 
     await fetch(url + "devices/" + deviceId + "/month/show", requestOptions)
-        .then(response => response.text())
-        .then(result => { statMonth = JSON.parse(result); })
-        .catch(error => console.log('error', error));
-
+    .then(response => response.text())
+    .then(result => JSON.parse(result))
+    .then(json => {
+        let datas = []
+        for (let key in json) {
+            let data = [];
+            data.push(json[key]["date"])
+            data.push(json[key]["y"]) 
+            
+            datas.push(data)
+        }
+        statMonth = datas;
+        
+    })
+    .catch(error => console.log('error', error));
     return statMonth;
 }
 
@@ -107,16 +130,10 @@ export async function authentification(login,password) {
         body: formdata,
 
     }).then(response => response.text())
-        .then(result => data = JSON.parse(result))
+        .then(result => {data = JSON.parse(result)})
         .catch(error => console.log('error', error));
-    
-    if (data["success"] === 0) {
-        return false
-    }
-    else {
-        let token = data["data"]["access_tokens"][0];
-        return token
-    }
+    return data
+
 
 
 }
